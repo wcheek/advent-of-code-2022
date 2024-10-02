@@ -23,13 +23,19 @@ pub fn run() -> Result<(), Box<dyn Error>> {
     if let Ok(contents) = fs::read_to_string("input.txt") {
         if let Ok(mut total_calories) = get_total_calories_vec(contents) {
             let mut max_calories = 0;
-            total_calories.sort_by(|a, b| a.total_calories.cmp(&b.total_calories));
+            total_calories.sort_by(|a, b| b.total_calories.cmp(&a.total_calories));
             for calorie in &total_calories {
                 if calorie.total_calories > max_calories {
                     max_calories = calorie.total_calories;
                 }
             }
-            println!("{:?}", &total_calories[0..2])
+            println!(
+                "{}",
+                &total_calories[0..3]
+                    .iter()
+                    .map(|calories| calories.total_calories)
+                    .sum::<u32>()
+            )
         }
     }
     Ok(())

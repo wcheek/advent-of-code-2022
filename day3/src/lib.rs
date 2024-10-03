@@ -11,11 +11,11 @@ mod tests {
     fn test_parse_row_case() -> Result<(), String> {
         let test_cases = [
             ("vJrwpWtwJgWrhcsFMMfFFhFp", "p"),
-            ("jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", "p"),
-            ("PmmdzqPrVvPwwTWBwg", "p"),
-            ("wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", "p"),
-            ("ttgJtRGJQctTZtZT", "p"),
-            ("CrZsJsPPZsGzwwsLwLmpwMDw", "p"),
+            ("jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", "L"),
+            ("PmmdzqPrVvPwwTWBwg", "P"),
+            ("wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", "v"),
+            ("ttgJtRGJQctTZtZT", "t"),
+            ("CrZsJsPPZsGzwwsLwLmpwMDw", "s"),
         ]
         .iter()
         .try_for_each(|(row, expected)| Ok(()))?;

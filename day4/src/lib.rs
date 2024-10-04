@@ -20,12 +20,16 @@ fn get_sections(line: &str) -> (Vec<u32>, Vec<u32>) {
     (sec1_seq, sec2_seq)
 }
 
-fn check_for_full_overlap(elf1: Vec<u32>, elf2: Vec<u32>) -> bool {
+fn check_for_full_overlap(elf1: &[u32], elf2: &[u32]) -> bool {
     match elf1.len().cmp(&elf2.len()) {
         Ordering::Greater => elf1[0] <= elf2[0] && elf1.last() >= elf2.last(),
         Ordering::Less => elf2[0] <= elf1[0] && elf2.last() >= elf1.last(),
         Ordering::Equal => elf2[0] == elf1[0] && elf2.last() == elf1.last(),
     }
+}
+
+fn check_for_overlap(elf1: &[u32], elf2: &[u32]) -> bool {
+    elf2.contains(&elf1[0]) || elf2.contains(elf1.last().unwrap())
 }
 
 pub fn run() -> Result<(), Box<dyn Error>> {
@@ -34,7 +38,7 @@ pub fn run() -> Result<(), Box<dyn Error>> {
         let lines = contents.lines();
         for line in lines {
             let (elf1, elf2) = get_sections(line);
-            if check_for_full_overlap(elf1, elf2) {
+            if check_for_overlap(&elf1, &elf2) || check_for_full_overlap(&elf1, &elf2) {
                 result += 1;
             }
         }
@@ -66,13 +70,24 @@ mod tests {
     }
 
     #[test]
-    fn test_check_for_overlap() {
+    fn test_check_for_full_overlap() {
         let case1 = vec![2, 3, 4, 5, 6, 7, 8];
         let case2 = vec![3, 4, 5, 6, 7];
-        assert!(check_for_full_overlap(case1, case2));
+        assert!(check_for_full_overlap(&case1, &case2));
 
         let case1 = vec![6];
         let case2 = vec![4, 5, 6];
-        assert!(check_for_full_overlap(case1, case2));
+        assert!(check_for_full_overlap(&case1, &case2));
+    }
+
+    #[test]
+    fn test_check_for_overlap() {
+        let case1 = vec![6, 7, 8];
+        let case2 = vec![3, 4, 5, 6, 7];
+        assert!(check_for_overlap(&case1, &case2));
+
+        let case1 = vec![6];
+        let case2 = vec![4, 5, 6];
+        assert!(check_for_overlap(&case1, &case2));
     }
 }

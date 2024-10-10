@@ -24,10 +24,10 @@ impl<T> Stack<T> {
         self.stack.reverse();
     }
 
-    // fn peek(&self) -> Option<&T> {
-    //     self.stack.last()
-    // }
-    //
+    pub fn peek(&self) -> Option<&T> {
+        self.stack.last()
+    }
+
     // fn length(&self) -> usize {
     //     self.stack.len()
     // }

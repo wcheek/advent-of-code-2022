@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::{error::Error, fs};
+use std::{error::Error, fs, str};
 
 mod stack;
 
@@ -54,6 +54,14 @@ fn perform_instruction<'a>(
     layout
 }
 
+fn get_answer(layout: Vec<stack::Stack<&str>>) -> String {
+    layout
+        .iter()
+        .map(|stk| *stk.peek().unwrap())
+        .collect::<Vec<&str>>()
+        .join("")
+}
+
 pub fn run() -> Result<(), Box<dyn Error>> {
     if let Ok(contents) = fs::read_to_string("input.txt") {
         if let Some(split) = contents.split_once("\r\n\r") {
@@ -65,6 +73,7 @@ pub fn run() -> Result<(), Box<dyn Error>> {
             for instruction in instructions.lines() {
                 layout = perform_instruction(layout, instruction.trim());
             }
+            dbg!(get_answer(layout));
         };
     }
     Ok(())

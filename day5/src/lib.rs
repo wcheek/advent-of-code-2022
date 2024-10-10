@@ -13,11 +13,9 @@ fn parse_layout(initial_layout_str: &str) -> Vec<stack::Stack<&str>> {
             let caps_enum = caps.iter().enumerate();
             for (ind, cap) in caps_enum {
                 if let Some(cap) = cap {
-                    if cap.as_str() != "   " {
+                    if cap.as_str() != "   " && ind > 0 {
                         let val = cap.as_str().trim_start_matches("[").trim_end_matches("]");
-                        if ind > 0 {
-                            empty_layout[ind - 1].push(val);
-                        }
+                        empty_layout[ind - 1].push(val);
                     };
                 }
             }
@@ -26,9 +24,7 @@ fn parse_layout(initial_layout_str: &str) -> Vec<stack::Stack<&str>> {
     empty_layout
 }
 
-fn reverse_layout(
-    initial_layout: &mut [stack::Stack<&'static str>],
-) -> Vec<stack::Stack<&'static str>> {
+fn reverse_layout<'a>(initial_layout: &mut [stack::Stack<&'a str>]) -> Vec<stack::Stack<&'a str>> {
     initial_layout
         .iter_mut()
         .map(|stack| {
@@ -38,10 +34,38 @@ fn reverse_layout(
         .collect()
 }
 
+fn perform_instruction<'a>(
+    mut layout: Vec<stack::Stack<&'a str>>,
+    instruction: &str,
+) -> Vec<stack::Stack<&'a str>> {
+    let re = Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap();
+    if let Some(caps) = re.captures(instruction) {
+        let init_pos = caps.get(2).unwrap().as_str().parse::<usize>().unwrap();
+        let move_pos = caps.get(3).unwrap().as_str().parse::<usize>().unwrap();
+
+        let mut num_to_move = caps.get(1).unwrap().as_str().parse::<usize>().unwrap();
+        while num_to_move > 0 {
+            if let Some(pop_box) = layout[init_pos - 1].pop() {
+                layout[move_pos - 1].push(pop_box);
+                num_to_move -= 1;
+            };
+        }
+    };
+    layout
+}
+
 pub fn run() -> Result<(), Box<dyn Error>> {
     if let Ok(contents) = fs::read_to_string("input.txt") {
-        let (initial_layout, instructions) = contents.split_once("\r\n\r").unwrap();
-        parse_layout(initial_layout);
+        if let Some(split) = contents.split_once("\r\n\r") {
+            let (initial_layout_str, instructions) = split;
+
+            let mut layout = parse_layout(initial_layout_str);
+            layout = reverse_layout(&mut layout);
+
+            for instruction in instructions.lines() {
+                layout = perform_instruction(layout, instruction.trim());
+            }
+        };
     }
     Ok(())
 }
@@ -71,8 +95,6 @@ mod tests {
     fn test_reverse_layout() {
         let initial_layout_str = "[V]         [T]         [J]        \r\n[Q]         [M] [P]     [Q]     [J]\r\n[W] [B]     [N] [Q]     [C]     [T]\r\n[M] [C]     [F] [N]     [G] [W] [G]\r\n[B] [W] [J] [H] [L]     [R] [B] [C]\r\n[N] [R] [R] [W] [W] [W] [D] [N] [F]\r\n[Z] [Z] [Q] [S] [F] [P] [B] [Q] [L]\r\n[C] [H] [F] [Z] [G] [L] [V] [Z] [H]\r\n 1   2   3   4   5   6   7   8   9 ";
         let mut initial_layout = parse_layout(initial_layout_str);
-
-        let reversed_layout = reverse_layout(&mut initial_layout);
         let expected = vec![
             stack::Stack::build(vec!["C", "Z", "N", "B", "M", "W", "Q", "V"]),
             stack::Stack::build(vec!["H", "Z", "R", "W", "C", "B"]),
@@ -85,6 +107,34 @@ mod tests {
             stack::Stack::build(vec!["H", "L", "F", "C", "G", "T", "J"]),
         ];
 
-        assert_eq!(expected, reversed_layout);
+        assert_eq!(expected, reverse_layout(&mut initial_layout));
+    }
+
+    #[test]
+    fn test_perform_instruction() {
+        let instruction = "move 2 from 1 to 7";
+        let orig_layout = vec![
+            stack::Stack::build(vec!["C", "Z", "N", "B", "M", "W", "Q", "V"]),
+            stack::Stack::build(vec!["H", "Z", "R", "W", "C", "B"]),
+            stack::Stack::build(vec!["F", "Q", "R", "J"]),
+            stack::Stack::build(vec!["Z", "S", "W", "H", "F", "N", "M", "T"]),
+            stack::Stack::build(vec!["G", "F", "W", "L", "N", "Q", "P"]),
+            stack::Stack::build(vec!["L", "P", "W"]),
+            stack::Stack::build(vec!["V", "B", "D", "R", "G", "C", "Q", "J"]),
+            stack::Stack::build(vec!["Z", "Q", "N", "B", "W"]),
+            stack::Stack::build(vec!["H", "L", "F", "C", "G", "T", "J"]),
+        ];
+        let new_layout = vec![
+            stack::Stack::build(vec!["C", "Z", "N", "B", "M", "W"]),
+            stack::Stack::build(vec!["H", "Z", "R", "W", "C", "B"]),
+            stack::Stack::build(vec!["F", "Q", "R", "J"]),
+            stack::Stack::build(vec!["Z", "S", "W", "H", "F", "N", "M", "T"]),
+            stack::Stack::build(vec!["G", "F", "W", "L", "N", "Q", "P"]),
+            stack::Stack::build(vec!["L", "P", "W"]),
+            stack::Stack::build(vec!["V", "B", "D", "R", "G", "C", "Q", "J", "V", "Q"]),
+            stack::Stack::build(vec!["Z", "Q", "N", "B", "W"]),
+            stack::Stack::build(vec!["H", "L", "F", "C", "G", "T", "J"]),
+        ];
+        assert_eq!(new_layout, perform_instruction(orig_layout, instruction));
     }
 }

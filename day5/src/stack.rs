@@ -20,6 +20,10 @@ impl<T> Stack<T> {
         self.stack.pop()
     }
 
+    pub fn reverse(&mut self) {
+        self.stack.reverse();
+    }
+
     fn peek(&self) -> Option<&T> {
         self.stack.last()
     }

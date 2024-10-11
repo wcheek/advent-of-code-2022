@@ -12,12 +12,20 @@ impl<T> Stack<T> {
         Stack { stack: items }
     }
 
-    pub fn push(&mut self, item: T) {
+    pub fn push(&mut self, item: Vec<T>) {
         self.stack.push(item)
     }
 
-    pub fn pop(&mut self) -> Option<T> {
-        self.stack.pop()
+    pub fn pop(&mut self, mut num_to_pop: usize) -> Option<Vec<T>> {
+        let mut temp = vec![];
+
+        while num_to_pop > 0 {
+            let temp_crate = self.stack.pop();
+            temp.push(temp_crate.unwrap());
+            num_to_pop -= 1;
+        }
+        temp.reverse();
+        Some(temp)
     }
 
     pub fn reverse(&mut self) {

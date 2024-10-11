@@ -14,7 +14,7 @@ fn parse_layout(initial_layout_str: &str) -> Vec<stack::Stack<&str>> {
             for (ind, cap) in caps_enum {
                 if let Some(cap) = cap {
                     if cap.as_str() != "   " && ind > 0 {
-                        let val = cap.as_str().trim_start_matches("[").trim_end_matches("]");
+                        let val = cap.as_str().trim_start_matches('[').trim_end_matches(']');
                         empty_layout[ind - 1].push(val);
                     };
                 }
@@ -43,13 +43,10 @@ fn perform_instruction<'a>(
         let init_pos = caps.get(2).unwrap().as_str().parse::<usize>().unwrap();
         let move_pos = caps.get(3).unwrap().as_str().parse::<usize>().unwrap();
 
-        let mut num_to_move = caps.get(1).unwrap().as_str().parse::<usize>().unwrap();
-        while num_to_move > 0 {
-            if let Some(pop_box) = layout[init_pos - 1].pop() {
-                layout[move_pos - 1].push(pop_box);
-                num_to_move -= 1;
-            };
-        }
+        let num_to_move = caps.get(1).unwrap().as_str().parse::<usize>().unwrap();
+        if let Some(pop_box) = layout[init_pos - 1].pop(num_to_move) {
+            layout[move_pos - 1].push(pop_box);
+        };
     };
     layout
 }
@@ -64,7 +61,7 @@ fn get_answer(layout: Vec<stack::Stack<&str>>) -> String {
 
 pub fn run() -> Result<(), Box<dyn Error>> {
     if let Ok(contents) = fs::read_to_string("input.txt") {
-        if let Some(split) = contents.split_once("\r\n\r") {
+        if let Some(split) = contents.split_once("\n\n") {
             let (initial_layout_str, instructions) = split;
 
             let mut layout = parse_layout(initial_layout_str);
@@ -73,7 +70,9 @@ pub fn run() -> Result<(), Box<dyn Error>> {
             for instruction in instructions.lines() {
                 layout = perform_instruction(layout, instruction.trim());
             }
-            dbg!(get_answer(layout));
+            dbg!("{}", get_answer(layout));
+        } else {
+            dbg!("hello");
         };
     }
     Ok(())

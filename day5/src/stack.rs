@@ -12,8 +12,10 @@ impl<T> Stack<T> {
         Stack { stack: items }
     }
 
-    pub fn push(&mut self, item: Vec<T>) {
-        self.stack.push(item)
+    pub fn push(&mut self, mut items: Vec<T>) {
+        for item in items {
+            self.stack.push(item)
+        }
     }
 
     pub fn pop(&mut self, mut num_to_pop: usize) -> Option<Vec<T>> {

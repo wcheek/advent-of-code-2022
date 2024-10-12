@@ -15,7 +15,7 @@ fn parse_layout(initial_layout_str: &str) -> Vec<stack::Stack<&str>> {
                 if let Some(cap) = cap {
                     if cap.as_str() != "   " && ind > 0 {
                         let val = cap.as_str().trim_start_matches('[').trim_end_matches(']');
-                        empty_layout[ind - 1].push(val);
+                        empty_layout[ind - 1].push(vec![val]);
                     };
                 }
             }

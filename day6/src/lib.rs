@@ -11,9 +11,9 @@ where
 
 pub fn run() -> Result<(), Box<dyn Error>> {
     if let Ok(contents) = fs::read_to_string("input.txt") {
-        let mut current = ['0'; 4];
+        let mut current = ['0'; 14];
         for (ind, c) in contents.char_indices() {
-            current[ind % 4] = c;
+            current[ind % 14] = c;
             if has_unique_elements(current) && !current.contains(&'0') {
                 dbg!(&current);
                 dbg!(&ind + 1);

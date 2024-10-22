@@ -11,14 +11,23 @@ pub struct MyDir {
 
 pub struct MyFS<'a> {
     pub cwd: String,
-    pub catalog: HashMap<&'a str, MyDir>,
+    pub cwd_dirs: HashMap<&'a str, MyDir>,
 }
 
-impl MyFS<'_> {
+impl<'a> MyFS<'a> {
     pub fn new() -> Self {
         MyFS {
             cwd: String::new(),
-            catalog: HashMap::new(),
+            cwd_dirs: HashMap::new(),
+        }
+    }
+}
+
+impl MyDir {
+    pub fn new() -> Self {
+        MyDir {
+            name: String::new(),
+            files: vec![],
         }
     }
 }

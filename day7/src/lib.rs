@@ -16,6 +16,7 @@ fn handle_cd(my_fs: &mut MyFS, to: String) {
 fn handle_command(my_fs: &mut MyFS, split_strings: &[&str]) {
     match split_strings[0] {
         "cd" => handle_cd(my_fs, split_strings[1].to_string()),
+        "ls" => todo!("bla"),
         _ => todo!("bla"),
     }
     dbg!(split_strings);
